@@ -1,9 +1,11 @@
 require 'oystercard'
 
 describe Oystercard do
+
  before(:each) do
   @oystercard = Oystercard.new
-  end
+ end
+
  it 'has a starting balance of 0' do
    expect(@oystercard.balance).to eq(0)
  end
@@ -21,28 +23,15 @@ describe Oystercard do
    end
  end
 
- context '#deduct'do
-   it { is_expected.to respond_to(:deduct).with(1).argument}
-
-   it 'reduces balance by one fare amount' do
-    expect{ @oystercard.deduct(2) }.to change{ @oystercard.balance }.by (-2)
-   end
-  end
-
   context '#touch_in' do
     it 'is currently in journey' do
       @oystercard.top_up(2)
       @oystercard.touch_in
-      @oystercard.deduct(Oystercard::MIN_FARE)
+      #@oystercard.deduct(Oystercard::MIN_FARE)
       expect(@oystercard).to be_in_journey
     end
-    it "checks for minimum balance on oystercard" do
-      @oystercard.top_up(2)
-    expect { @oystercard.touch_in }.to change{ @oystercard.balance }.by (-Oystercard::MIN_FARE)
-    end
     it 'enforces minimum fare of 2' do
-    # allow(@oystercard).to receive(:balance){0}
-    expect{ @oystercard.touch_in }.to raise_error "Insufficient balance"
+      expect{ @oystercard.touch_in }.to raise_error "Insufficient balance"
   end
 end
 
@@ -52,6 +41,10 @@ end
       @oystercard.touch_in
       @oystercard.touch_out
       expect(@oystercard).to be_in_journey
+    end
+    it "checks for minimum balance on oystercard" do
+      @oystercard.top_up(2)
+      expect { @oystercard.touch_out }.to change{ @oystercard.balance }.by (-Oystercard::MIN_FARE)
     end
   end
  end
