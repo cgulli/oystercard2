@@ -26,5 +26,20 @@ describe Oystercard do
    it 'reduces balance by one fare amount' do
     expect{ oystercard.deduct(2) }.to change{ oystercard.balance }.by (-2)
    end
- end
+  end
+
+  describe '#touch_in' do
+    it 'is currently in journey' do
+      oystercard.touch_in
+      expect(oystercard).to be_in_journey
+    end
+  end
+
+  describe '#touch_out' do
+    it 'is not currently in journey' do
+      oystercard.touch_in
+      oystercard.touch_out
+      expect(oystercard).to be_in_journey
+    end
+  end
  end
