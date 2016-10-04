@@ -1,7 +1,8 @@
 require 'oystercard'
 
 describe Oystercard do
-
+let(:entry_station) { double :entry_station }
+let(:station) { double :station }
  before(:each) do
   @oystercard = Oystercard.new
  end
@@ -26,21 +27,20 @@ describe Oystercard do
   context '#touch_in' do
     it 'is currently in journey' do
       @oystercard.top_up(2)
-      @oystercard.touch_in
-      #@oystercard.deduct(Oystercard::MIN_FARE)
-      expect(@oystercard).to be_in_journey
+      @oystercard.touch_in(station)
+      expect(@oystercard.entry_station).to eq station
     end
     it 'enforces minimum fare of 2' do
-      expect{ @oystercard.touch_in }.to raise_error "Insufficient balance"
+      expect{ @oystercard.touch_in(station) }.to raise_error "Insufficient balance"
   end
 end
 
   context '#touch_out' do
     it 'is not currently in journey' do
       @oystercard.top_up(2)
-      @oystercard.touch_in
+      @oystercard.touch_in(station)
       @oystercard.touch_out
-      expect(@oystercard).to be_in_journey
+      expect(@oystercard.entry_station).to eq nil
     end
     it "checks for minimum balance on oystercard" do
       @oystercard.top_up(2)
