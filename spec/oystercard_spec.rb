@@ -2,10 +2,16 @@ require 'oystercard'
 
 describe Oystercard do
 let(:station) { double :station }
+let(:entry_station) { double :station }
+let(:exit_station) { double :station }
+let(:journeys) {{:entry_station => entry_station, :exit_station => exit_station}}
  before(:each) do
   @oystercard = Oystercard.new
  end
 
+ it "returns an empty list of journeys" do
+   expect(@oystercard.journeys).to be_empty
+ end
  it 'has a starting balance of 0' do
    expect(@oystercard.balance).to eq(0)
  end
@@ -38,12 +44,13 @@ end
     it 'is not currently in journey' do
       @oystercard.top_up(2)
       @oystercard.touch_in(station)
-      @oystercard.touch_out
+      @oystercard.touch_out(exit_station)
       expect(@oystercard.entry_station).to eq nil
     end
     it "checks for minimum balance on oystercard" do
       @oystercard.top_up(2)
-      expect { @oystercard.touch_out }.to change{ @oystercard.balance }.by (-Oystercard::MIN_FARE)
+      expect { @oystercard.touch_out(exit_station) }.to change{ @oystercard.balance }.by (-Oystercard::MIN_FARE)
     end
   end
+
  end
