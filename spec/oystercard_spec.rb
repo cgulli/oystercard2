@@ -1,7 +1,6 @@
 require 'oystercard'
 
 describe Oystercard do
-let(:entry_station) { double :entry_station }
 let(:station) { double :station }
  before(:each) do
   @oystercard = Oystercard.new
