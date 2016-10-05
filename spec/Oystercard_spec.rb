@@ -1,31 +1,26 @@
 require 'oyster_card'
+require 'journey'
 
 describe OysterCard do
 subject(:oyster_card) { described_class.new }
 subject(:topped_up_card) {described_class.new(10)}
 
 let(:station) {double :station}
+let(:journey) {double :journey}
 
 	describe 'initializing a card' do
 		it 'initializes a zero balance by default' do
 			expect(oyster_card.balance).to eq 0
 		end
 
-		it 'initializes a not in journey' do
-			expect(oyster_card.in_journey?).to eq false
-		end
-
-		it 'initializes without an entry station' do
-			expect(oyster_card.entry_station).to eq(nil)
-		end
+		# it 'initializes a not in journey' do
+		# 	expect(oyster_card.in_journey?).to eq false
+		# end
 
 		it 'initializes with an empty journey history' do
 			expect(oyster_card.journey_history).to eq([])
 		end
 
-		it 'initializes with an clear current journey' do
-			expect(oyster_card.current_journey).to eq ({entry_station: nil, exit_station: nil})
-		end
 	end
 
 	describe '#top_up' do
@@ -47,7 +42,7 @@ let(:station) {double :station}
  	describe '#touch_in' do
 		it 'changes card to be on a journey when touched in' do
 			topped_up_card.touch_in(station)
-			expect(topped_up_card).to be_in_journey
+			expect(topped_up_card.current_journey.journey).to be_in_journey
 		end
 
 		it 'doesn\'t allow card to be touched in with insufficient funds - min £1' do
@@ -56,39 +51,40 @@ let(:station) {double :station}
 
 		it 'sets an entry station on touch in' do
 			topped_up_card.touch_in(station)
-			expect(topped_up_card.current_journey[:entry_station]).to eq station
+			expect(topped_up_card.current_journey.journey[0]).to eq station
 		end
 	end
-	
+
 	describe '#touch_out' do
-		let(:entry_station) {double :entry_station}
-		let(:exit_station) {double :exit_station}
+		let(:start_station) {double :start_station}
+		let(:end_station) {double :end_station}
 
 		before do
-			topped_up_card.touch_in(entry_station)
+			topped_up_card.touch_in(start_station)
 		end
 
 		it 'take an aurgument of a station' do
 			expect(topped_up_card).to respond_to(:touch_out).with(1).argument
 		end
 
-		it 'changes card to be not on a journey when touched out' do
-			topped_up_card.touch_out(exit_station)
-			expect(topped_up_card).not_to be_in_journey
-		end
+		 it 'changes card to be not on a journey when touched out' do
+		 	topped_up_card.touch_out(exit_station)
+		 	expect(topped_up_card).not_to be_in_journey
+		 end
 
-		it 'forgets the entry station on touch out' do
-			topped_up_card.touch_out(exit_station)
-			expect(topped_up_card.entry_station).to eq nil
-		end
 
 		it 'deducts money from the card when touched out' do
-			expect{topped_up_card.touch_out(exit_station)}.to change{topped_up_card.balance}.by(-1)
+			expect{topped_up_card.touch_out(end_station)}.to change{topped_up_card.balance}.by(-1)
+		end
+
+		it 'adds an end station to the journey' do
+			topped_up_card.touch_out(end_station)
+			expect(topped_up_card.current_journey.journey[1]).to eq end_station
 		end
 
 		it 'logs the completed journey to the journey history after touching out' do
-			topped_up_card.touch_out(exit_station)
-			expect(topped_up_card.journey_history).to include({entry_station: entry_station, exit_station: exit_station})
+			topped_up_card.touch_out(end_station)
+			expect(topped_up_card.journey_history[0].journey).to eq([start_station, end_station])
 		end
 	end
 
