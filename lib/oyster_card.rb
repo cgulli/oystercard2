@@ -16,18 +16,19 @@ class OysterCard
 		@balance += money
 	end
 
-	def in_journey?
-		!@current_journey.journey[:start_station].nil?
-	end
+	# def in_journey?
+	# 	!@current_journey.journey[:start_station].nil?
+	# end
 
 	def touch_in(station)
 		raise 'Insufficient funds, please top up' if balance < MIN_VALUE
-		@current_journey = Journey.new(station)
+		@current_journey = Journey.new
+		@current_journey.start(station)
 	end
 
 	def touch_out(station)
-		deduct(MIN_VALUE)
 		@current_journey.end(station)
+		@balance -= (@current_journey.calculate_fare)
 		@journey_history << @current_journey
 	end
 
